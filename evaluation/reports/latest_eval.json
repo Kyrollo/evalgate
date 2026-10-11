@@ -1,0 +1,117 @@
+{
+  "product": "evalgate",
+  "timestamp": 1791712057.903788,
+  "live_inference": {
+    "model": "qwen2.5:0.5b",
+    "latency_ms": 4018.69,
+    "tokens_used": 187,
+    "metrics": {
+      "correctness": 0.1122,
+      "faithfulness": 0.2359,
+      "answer_relevance": 0.9375,
+      "hallucination": 0.7641,
+      "semantic_similarity": 0.1122,
+      "exact_match": 0.0,
+      "latency_ms": 4018.69
+    },
+    "overall_passed": false
+  },
+  "regression_comparison": {
+    "baseline_label": "Baseline v1.0 (Direct Local)",
+    "candidate_label": "Candidate v1.1 (GPU Prompt Grounded)",
+    "sample_size": 8,
+    "metrics": {
+      "correctness": {
+        "metric_name": "correctness",
+        "baseline_mean": 0.8713,
+        "candidate_mean": 0.915,
+        "delta": 0.0437,
+        "relative_change_pct": 5.02,
+        "t_statistic": 4.7819,
+        "p_value": 0.0003,
+        "is_significant": true,
+        "cohens_d": 2.391,
+        "mann_whitney_u": 62.0,
+        "ci_95_low": 0.0275,
+        "ci_95_high": 0.06,
+        "status": "IMPROVEMENT"
+      },
+      "faithfulness": {
+        "metric_name": "faithfulness",
+        "baseline_mean": 0.9275,
+        "candidate_mean": 0.9612,
+        "delta": 0.0337,
+        "relative_change_pct": 3.64,
+        "t_statistic": 3.5584,
+        "p_value": 0.0039,
+        "is_significant": true,
+        "cohens_d": 1.7792,
+        "mann_whitney_u": 57.5,
+        "ci_95_low": 0.0163,
+        "ci_95_high": 0.05,
+        "status": "IMPROVEMENT"
+      },
+      "answer_relevance": {
+        "metric_name": "answer_relevance",
+        "baseline_mean": 0.8938,
+        "candidate_mean": 0.9337,
+        "delta": 0.04,
+        "relative_change_pct": 4.48,
+        "t_statistic": 3.8092,
+        "p_value": 0.0023,
+        "is_significant": true,
+        "cohens_d": 1.9046,
+        "mann_whitney_u": 58.0,
+        "ci_95_low": 0.0212,
+        "ci_95_high": 0.0587,
+        "status": "IMPROVEMENT"
+      },
+      "hallucination": {
+        "metric_name": "hallucination",
+        "baseline_mean": 0.0725,
+        "candidate_mean": 0.0388,
+        "delta": -0.0338,
+        "relative_change_pct": -46.55,
+        "t_statistic": -3.5584,
+        "p_value": 0.0039,
+        "is_significant": true,
+        "cohens_d": -1.7792,
+        "mann_whitney_u": 6.5,
+        "ci_95_low": -0.05,
+        "ci_95_high": -0.0163,
+        "status": "IMPROVEMENT"
+      },
+      "semantic_similarity": {
+        "metric_name": "semantic_similarity",
+        "baseline_mean": 0.8713,
+        "candidate_mean": 0.915,
+        "delta": 0.0437,
+        "relative_change_pct": 5.02,
+        "t_statistic": 4.7819,
+        "p_value": 0.0003,
+        "is_significant": true,
+        "cohens_d": 2.391,
+        "mann_whitney_u": 62.0,
+        "ci_95_low": 0.0275,
+        "ci_95_high": 0.06,
+        "status": "IMPROVEMENT"
+      },
+      "latency_ms": {
+        "metric_name": "latency_ms",
+        "baseline_mean": 240.375,
+        "candidate_mean": 210.5,
+        "delta": -29.875,
+        "relative_change_pct": -12.43,
+        "t_statistic": -5.105,
+        "p_value": 0.0004,
+        "is_significant": true,
+        "cohens_d": -2.5525,
+        "mann_whitney_u": 1.0,
+        "ci_95_low": -40.2531,
+        "ci_95_high": -19.5,
+        "status": "IMPROVEMENT"
+      }
+    },
+    "overall_verdict": "PASS"
+  }
+}

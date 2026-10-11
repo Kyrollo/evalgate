@@ -1,170 +1,192 @@
-import React, { useEffect, useState } from 'react';
-import { Activity, AlertTriangle, CheckCircle2, ShieldCheck, Sparkles, Terminal } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import React, { useState, useEffect } from 'react';
+import {
+  EvaluationRun,
+  QualityGateRule,
+  RegressionComparison,
+  TestSuite,
+} from './types/evalgate';
+import {
+  executeEvaluationRun,
+  fetchGateRules,
+  fetchRegressionComparison,
+  fetchRuns,
+  fetchSuites,
+} from './lib/api';
+import { Header } from './components/Header';
+import { CiMatrixTab } from './components/CiMatrixTab';
+import { StatsTab } from './components/StatsTab';
+import { GateRulesTab } from './components/GateRulesTab';
+import { LabTab } from './components/LabTab';
+import {
+  BarChart3,
+  SlidersHorizontal,
+  FlaskConical,
+  ShieldCheck,
+  Activity,
+  Layers,
+} from 'lucide-react';
 
-interface HealthData {
-  status: string;
-  checks?: Record<string, string>;
-  environment?: string;
-}
-
-export default function App() {
-  const [health, setHealth] = useState<HealthData | null>(null);
-  const [loading, setLoading] = useState(true);
+export function App() {
+  const [activeTab, setActiveTab] = useState<'matrix' | 'stats' | 'rules' | 'lab'>('matrix');
+  const [suites, setSuites] = useState<TestSuite[]>([]);
+  const [runs, setRuns] = useState<EvaluationRun[]>([]);
+  const [rules, setRules] = useState<QualityGateRule[]>([]);
+  const [comparison, setComparison] = useState<RegressionComparison | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [executing, setExecuting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function checkHealth() {
-      try {
-        const res = await fetch('/api/v1/readyz');
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({ detail: res.statusText }));
-          throw new Error(errData.detail || `HTTP ${res.status}`);
-        }
-        const data = await res.json();
-        setHealth(data);
-      } catch (err: any) {
-        setError(err.message || 'Failed to reach API gateway');
-      } finally {
-        setLoading(false);
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [suitesData, runsData, rulesData] = await Promise.all([
+        fetchSuites(),
+        fetchRuns(),
+        fetchGateRules(),
+      ]);
+      setSuites(suitesData);
+      setRuns(runsData);
+      setRules(rulesData);
+
+      // Default compare baseline vs candidate
+      if (runsData.length >= 2) {
+        const comp = await fetchRegressionComparison(runsData[0].id, runsData[1].id);
+        setComparison(comp);
       }
+    } catch (err: any) {
+      setError(err.message || 'Failed to load EvalGate telemetry');
+    } finally {
+      setLoading(false);
     }
-    checkHealth();
+  };
+
+  useEffect(() => {
+    loadData();
   }, []);
 
-  return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Header */}
-      <header className="border-b border-border bg-card/60 backdrop-blur sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center text-white font-bold shadow-sm">
-              E
-            </div>
-            <div>
-              <span className="font-bold text-lg tracking-tight">EvalGate</span>
-              <span className="text-xs text-muted-foreground ml-2 hidden sm:inline-block">v1.0.0</span>
-            </div>
-          </div>
+  const handleExecuteBenchmark = async () => {
+    if (suites.length === 0) return;
+    try {
+      setExecuting(true);
+      const newRun = await executeEvaluationRun({
+        suite_id: suites[0].id,
+        label: `Candidate Run (Live GPU ${new Date().toLocaleTimeString()})`,
+        model: suites[0].default_model || 'qwen2.5:0.5b',
+      });
+      // Re-compare against baseline
+      const updatedRuns = await fetchRuns();
+      setRuns(updatedRuns);
+      if (updatedRuns.length >= 2) {
+        const comp = await fetchRegressionComparison(updatedRuns[0].id, newRun.id);
+        setComparison(comp);
+      }
+    } catch (err: any) {
+      alert(`Benchmark execution failed: ${err.message}`);
+    } finally {
+      setExecuting(false);
+    }
+  };
 
-          <div className="flex items-center gap-3">
-            {loading ? (
-              <Badge variant="outline" className="animate-pulse">Checking...</Badge>
-            ) : error ? (
-              <Badge variant="destructive" className="flex items-center gap-1.5">
-                <AlertTriangle className="w-3.5 h-3.5" /> Degraded
-              </Badge>
-            ) : (
-              <Badge variant="success" className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Operational
-              </Badge>
-            )}
-            <Button variant="outline" size="sm" asChild>
-              <a href="/docs" target="_blank" rel="noreferrer">
-                API Docs
-              </a>
-            </Button>
-          </div>
-        </div>
-      </header>
+  return (
+    <div className="min-h-screen bg-[#070b12] text-slate-100 font-sans selection:bg-emerald-500/30">
+      {/* Header */}
+      <Header
+        suites={suites}
+        runs={runs}
+        comparison={comparison}
+        onExecuteSuite={handleExecuteBenchmark}
+        executing={executing}
+      />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-6 md:p-8 space-y-8">
-        {error && (
-          <Alert className="border-red-500/30 bg-red-500/5 text-red-600">
-            <AlertTriangle className="w-4 h-4 text-red-500" />
-            <AlertTitle>Upstream Degraded (RFC 7807 503)</AlertTitle>
-            <AlertDescription className="text-muted-foreground text-xs font-mono">
-              {error} - Backend dependency unavailable. Degraded mode active.
-            </AlertDescription>
-          </Alert>
-        )}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Navigation Tabs */}
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-950 p-1">
+            <button
+              onClick={() => setActiveTab('matrix')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition ${
+                activeTab === 'matrix'
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/40'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              <BarChart3 className="h-4 w-4" />
+              <span>CI Regression Matrix</span>
+            </button>
 
-        <div className="space-y-2">
-          <h1 className="text-3xl font-extrabold tracking-tight">EvalGate</h1>
-          <p className="text-muted-foreground max-w-3xl leading-relaxed">
-            LLM Regression Testing & Quality Gates: statistical significance testing, automated evaluations, and CI quality gates
-          </p>
+            <button
+              onClick={() => setActiveTab('stats')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition ${
+                activeTab === 'stats'
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/40'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              <Activity className="h-4 w-4" />
+              <span>Statistical Distributions & Significance</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('rules')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition ${
+                activeTab === 'rules'
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/40'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              <ShieldCheck className="h-4 w-4" />
+              <span>Quality Gate Rules</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('lab')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition ${
+                activeTab === 'lab'
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/40'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              <FlaskConical className="h-4 w-4" />
+              <span>Live Test Assertion Lab</span>
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs text-slate-400">
+            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+            <span>Telemetry Stream: Active</span>
+          </div>
         </div>
 
-        {/* Feature Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <div className="w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center mb-2">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <CardTitle>Verified Production Core</CardTitle>
-              <CardDescription>
-                Strict CI enforcement against mock responses or fake token streams. All endpoints hit real models.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center mb-2">
-                <Activity className="w-4 h-4" />
-              </div>
-              <CardTitle>Observability Stack</CardTitle>
-              <CardDescription>
-                Prometheus metrics, OpenTelemetry spans, and Langfuse tracing integrated into every inference call.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div className="w-8 h-8 rounded-md bg-primary/10 text-primary flex items-center justify-center mb-2">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <CardTitle>Unique UI Archetype</CardTitle>
-              <CardDescription>
-                Tailored for CI test report workflows with custom tokens and typography.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-
-        {/* System Status Panel */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-primary" /> Live Cluster Connectivity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-muted/50 rounded-lg p-4 font-mono text-xs space-y-2">
-              <div className="flex justify-between border-b border-border/50 pb-2">
-                <span className="text-muted-foreground">Gateway Port:</span>
-                <span>8002</span>
-              </div>
-              <div className="flex justify-between border-b border-border/50 pb-2">
-                <span className="text-muted-foreground">Frontend Port:</span>
-                <span>3002</span>
-              </div>
-              <div className="flex justify-between border-b border-border/50 pb-2">
-                <span className="text-muted-foreground">LLM Provider:</span>
-                <span>Ollama / Local GPU (Fallback: Cloud)</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Cluster Readiness:</span>
-                <span className={health?.status === 'ready' ? 'text-emerald-500' : 'text-amber-500'}>
-                  {health?.status || 'connecting'}
-                </span>
-              </div>
+        {/* Tab Views */}
+        {loading ? (
+          <div className="flex h-72 items-center justify-center rounded-xl border border-slate-800 bg-slate-900/30">
+            <div className="flex flex-col items-center gap-3">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+              <span className="text-xs text-slate-400 font-mono">
+                Computing two-sample regression metrics...
+              </span>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        ) : (
+          <div>
+            {activeTab === 'matrix' && <CiMatrixTab comparison={comparison} />}
+            {activeTab === 'stats' && <StatsTab comparison={comparison} />}
+            {activeTab === 'rules' && (
+              <GateRulesTab
+                comparison={comparison}
+                rules={rules}
+                report={comparison?.gate_report || null}
+                onRefreshGates={loadData}
+              />
+            )}
+            {activeTab === 'lab' && <LabTab />}
+          </div>
+        )}
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
-        EvalGate &bull; Autonomous AI Production Stack &bull; Licensed under MIT
-      </footer>
     </div>
   );
 }
+
+export default App;

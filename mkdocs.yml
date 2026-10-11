@@ -1,0 +1,46 @@
+site_name: EvalGate Documentation
+site_description: LLM Regression Testing & Quality Gates: statistical significance testing, automated evaluations, and CI quality gates
+site_author: Kyrollo
+repo_url: https://github.com/Kyrollo/evalgate
+repo_name: Kyrollo/evalgate
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - content.code.copy
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+nav:
+  - Overview: index.md
+  - Architecture: architecture.md
+  - API Reference: api.md
+  - Evaluation: evaluation.md
+  - Operations & Runbook: operations.md
+  - Security Model: security.md

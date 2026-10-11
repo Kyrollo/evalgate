@@ -1,0 +1,7 @@
+evalgate.local {
+    reverse_proxy localhost:3002
+
+    handle_path /api/* {
+        reverse_proxy localhost:8002
+    }
+}

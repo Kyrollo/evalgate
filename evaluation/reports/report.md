@@ -1,7 +1,7 @@
 # EvalGate Evaluation & Regression Report
 
 **Timestamp**: 2026-10-11 09:47:37 UTC  
-**Hardware Inference Target**: NVIDIA RTX A5000 Laptop GPU (16GB VRAM) via Ollama  
+**Hardware Inference Target**: Dedicated NVIDIA GPU (16GB VRAM) via Ollama  
 **Model**: `qwen2.5:0.5b`  
 **Quality Gate Verdict**: **PASS** (0 blocker breaches)
 

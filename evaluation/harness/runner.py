@@ -124,7 +124,7 @@ def run_benchmark() -> int:
     print(f"--> Found {len(suites)} registered evaluation benchmark suite(s).")
 
     # 3. Perform live interactive inference against local Ollama GPU
-    print("--> Executing live prompt evaluation on RTX A5000 GPU (model: qwen2.5:0.5b)...")
+    print("--> Executing live prompt evaluation on Dedicated NVIDIA GPU (model: qwen2.5:0.5b)...")
     start_time = time.perf_counter()
     lab_resp = client.post(
         "/api/v1/lab/run",
@@ -191,7 +191,7 @@ def run_benchmark() -> int:
     md_content = f"""# EvalGate Evaluation & Regression Report
 
 **Timestamp**: {time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime())}  
-**Hardware Inference Target**: NVIDIA RTX A5000 Laptop GPU (16GB VRAM) via Ollama  
+**Hardware Inference Target**: Dedicated NVIDIA GPU (16GB VRAM) via Ollama  
 **Model**: `qwen2.5:0.5b`  
 **Quality Gate Verdict**: **{comparison['overall_verdict']}** (0 blocker breaches)
 

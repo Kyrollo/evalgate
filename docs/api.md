@@ -48,7 +48,7 @@ curl -X GET "http://localhost:8002/api/v1/regression/compare?baseline_id=run_dia
 ## 2. Interactive Assertion Lab
 
 ### `POST /api/v1/lab/run`
-Executes a single test case prompt against the local RTX A5000 GPU Ollama model and evaluates custom quality assertions in real time.
+Executes a single test case prompt against the local Dedicated NVIDIA GPU Ollama model and evaluates custom quality assertions in real time.
 
 #### Request
 ```bash

@@ -29,7 +29,7 @@ flowchart TD
     end
 
     subgraph Hardware_Inference ["Inference Targets"]
-        OllamaGPU["Local NVIDIA RTX A5000 GPU\nOllama: qwen2.5:0.5b / llama3.2"]
+        OllamaGPU["Local NVIDIA Dedicated NVIDIA GPU\nOllama: qwen2.5:0.5b / llama3.2"]
         CloudLLM["Cloud OpenAI / Anthropic Endpoints\n(Optional Failover)"]
     end
 
@@ -59,7 +59,7 @@ sequenceDiagram
     actor CI as CI Runner (GitHub Action)
     participant API as EvalGate API
     participant Runner as Test Runner
-    participant GPU as Local Ollama GPU (RTX A5000)
+    participant GPU as Local Ollama GPU (Dedicated NVIDIA GPU)
     participant Eval as Evaluator Engine
     participant Stats as Stats Engine
     participant Gate as Quality Gate Engine

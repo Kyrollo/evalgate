@@ -25,7 +25,7 @@ export const LabTab: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [logs, setLogs] = useState<string[]>([
     '[SYSTEM] Interactive LLM Assertion Lab ready.',
-    '[HARDWARE] Target GPU: NVIDIA RTX A5000 Laptop GPU (16GB VRAM warm).',
+    '[HARDWARE] Target GPU: Dedicated NVIDIA GPU (16GB VRAM warm).',
     '[MODEL] Default endpoint: Ollama http://127.0.0.1:11434 (model: qwen2.5:0.5b).',
   ]);
   const [result, setResult] = useState<InteractiveLabResponse | null>(null);
@@ -82,7 +82,7 @@ export const LabTab: React.FC = () => {
               Interactive Test Assertion & Metric Evaluation Lab
             </h3>
             <p className="text-xs text-slate-400">
-              Run custom prompts with live evaluation assertions on local RTX A5000 GPU
+              Run custom prompts with live evaluation assertions on local Dedicated NVIDIA GPU
             </p>
           </div>
         </div>

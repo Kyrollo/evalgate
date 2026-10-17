@@ -53,7 +53,7 @@ export const CiMatrixTab: React.FC<CiMatrixTabProps> = ({ comparison }) => {
           <div className="text-3xl font-bold tracking-tight text-amber-400 font-mono">
             {candidateScore}%
           </div>
-          <p className="mt-1 text-[11px] text-slate-500">Target inference: Local RTX A5000 GPU</p>
+          <p className="mt-1 text-[11px] text-slate-500">Target inference: Local Dedicated NVIDIA GPU</p>
         </div>
 
         {/* Significant Delta */}

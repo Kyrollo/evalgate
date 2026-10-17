@@ -8,6 +8,7 @@ from src.evalgate.api.v1.lab import router as lab_router
 from src.evalgate.api.v1.regression import router as regression_router
 from src.evalgate.api.v1.runs import router as runs_router
 from src.evalgate.api.v1.suites import router as suites_router
+from src.evalgate.api.v1.files import router as files_router
 
 api_v1_router = APIRouter()
 api_v1_router.include_router(health_router)
@@ -17,6 +18,7 @@ api_v1_router.include_router(runs_router)
 api_v1_router.include_router(regression_router)
 api_v1_router.include_router(gates_router)
 api_v1_router.include_router(lab_router)
+api_v1_router.include_router(files_router)
 
 
 @api_v1_router.get("/info", tags=["info"])

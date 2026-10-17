@@ -24,10 +24,12 @@ import {
   ShieldCheck,
   Activity,
   Layers,
+  FolderUp,
 } from 'lucide-react';
+import { FileUploadZone } from './components/FileUploadZone';
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'matrix' | 'stats' | 'rules' | 'lab'>('matrix');
+  const [activeTab, setActiveTab] = useState<'matrix' | 'stats' | 'rules' | 'lab' | 'datasets'>('matrix');
   const [suites, setSuites] = useState<TestSuite[]>([]);
   const [runs, setRuns] = useState<EvaluationRun[]>([]);
   const [rules, setRules] = useState<QualityGateRule[]>([]);
@@ -151,6 +153,18 @@ export function App() {
               <FlaskConical className="h-4 w-4" />
               <span>Live Test Assertion Lab</span>
             </button>
+
+            <button
+              onClick={() => setActiveTab('datasets')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition ${
+                activeTab === 'datasets'
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-900/40'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+              }`}
+            >
+              <FolderUp className="h-4 w-4" />
+              <span>Test Datasets Upload</span>
+            </button>
           </div>
 
           <div className="flex items-center gap-2 text-xs text-slate-400">
@@ -182,6 +196,24 @@ export function App() {
               />
             )}
             {activeTab === 'lab' && <LabTab />}
+            {activeTab === 'datasets' && (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-bold text-slate-100">Evaluation Datasets & Golden Answers</h3>
+                  <p className="text-xs text-slate-400">
+                    Upload evaluation test datasets (.csv, .jsonl, .json) to populate test cases and run automated regression gates.
+                  </p>
+                </div>
+                <FileUploadZone
+                  apiBaseUrl="/api/v1"
+                  allowedExtensions={['.csv', '.jsonl', '.json', '.txt']}
+                  acceptedFormatsText="CSV, JSONL, JSON, TXT"
+                  onFileProcessed={() => {
+                    loadData();
+                  }}
+                />
+              </div>
+            )}
           </div>
         )}
       </main>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { InteractiveLabResponse } from '../types/evalgate';
 import { runInteractiveLab } from '../lib/api';
 import { Play, Sparkles, Terminal, CheckCircle2, XCircle, Clock, Database, Cpu } from 'lucide-react';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 export const LabTab: React.FC = () => {
   const [prompt, setPrompt] = useState(
@@ -305,7 +306,7 @@ export const LabTab: React.FC = () => {
               </div>
 
               {/* Completion text with Word Diff */}
-              <div className="rounded-lg border border-slate-800 bg-slate-950/90 p-3 font-mono text-xs overflow-y-auto max-h-[220px]">
+              <div className="rounded-lg border border-slate-800 bg-slate-950/90 p-3 font-mono text-xs overflow-y-auto min-h-[160px] max-h-[520px]">
                 <div className="mb-1 text-[10px] text-slate-500 font-sans font-semibold">
                   Model Output vs Reference Ground Truth:
                 </div>
@@ -336,7 +337,7 @@ export const LabTab: React.FC = () => {
                     })}
                   </div>
                 ) : (
-                  <div className="text-slate-200">{result.completion}</div>
+                  <MarkdownRenderer content={result.completion} defaultMaxHeight="max-h-[420px]" />
                 )}
               </div>
             </div>

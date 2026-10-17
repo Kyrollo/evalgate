@@ -20,7 +20,7 @@ async def execute_model_inference(
     system_prompt: str | None = None,
     model: str = "qwen2.5:0.5b",
     temperature: float = 0.2,
-    max_tokens: int = 512,
+    max_tokens: int = 2048,
 ) -> tuple[str, float, int]:
     """
     Executes model inference against local GPU Ollama or OpenAI-compatible endpoint.

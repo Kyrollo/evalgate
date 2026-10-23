@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "evalgate"
 version = "1.0.0"
 description = "LLM Regression Testing & Quality Gates: statistical significance testing, automated evaluations, and CI quality gates"
-readme = "../README.md"
+readme = "README.md"
 authors = [{ name = "Kyrollo", email = "kyrollo@users.noreply.github.com" }]
 requires-python = ">=3.12"
 dependencies = [
